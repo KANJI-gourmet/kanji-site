@@ -5,7 +5,7 @@ form.addEventListener('submit',async e=>{e.preventDefault();
  const email=document.getElementById('email').value.trim(),p=document.getElementById('password').value,p2=document.getElementById('password2').value;
  if(p!==p2){show('確認用パスワードが一致しません。');return;}
  if(p.length<8){show('パスワードは8文字以上で設定してください。');return;}
- const redirect=new URL('login.html',location.href).href;
+ const redirect=(window.KANJI_CONFIG?.SITE_URL||location.origin+location.pathname.replace(/[^/]+$/,''))+'login.html';
  const {error}=await kanjiSupabase.auth.signUp({email,password:p,options:{emailRedirectTo:redirect}});
  if(error){show('登録できませんでした。入力内容をご確認ください。');return;}
  window.kanjiTrack?.('sign_up',{method:'email'});

@@ -12,3 +12,8 @@
   .header .pill{font-size:11px;padding:7px 9px}
   .header-in{gap:7px}
 }
+
+/* Robust header logo rendering */
+.site-logo-link{height:66px;display:flex;align-items:center;overflow:visible!important;padding:0;margin:0;line-height:0}
+.site-logo{display:block!important;width:132px!important;height:auto!important;max-width:32vw!important;max-height:52px!important;object-fit:contain!important;object-position:left center!important;overflow:visible!important}
+@media(max-width:480px){.site-logo{width:104px!important;max-width:29vw!important;max-height:44px!important}}

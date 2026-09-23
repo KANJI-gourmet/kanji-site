@@ -1,5 +1,7 @@
 # KANJI
 
+**Release status: LIVE — 2026-09-24**
+
 KANJI public website.
 
 - Static site: GitHub Pages

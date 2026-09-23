@@ -1,0 +1,6 @@
+(function(){
+async function s(){if(!window.kanjiSupabase)return null;try{const{data}=await kanjiSupabase.auth.getSession();return data&&data.session?data.session:null}catch(e){return null}}
+function n(session){const r=document.getElementById('memberQuickNav');if(!r)return;if(session&&session.user){r.innerHTML='<a class="pill" href="mypage.html">マイページ</a><button id="memberLogoutBtn" class="pill dark" type="button" style="cursor:pointer">ログアウト</button>';document.getElementById('memberLogoutBtn').onclick=async()=>{await kanjiSupabase.auth.signOut();location.replace('index.html')}}else{r.innerHTML='<a class="pill" href="login.html">ログイン</a><a class="pill dark" href="signup.html">会員登録</a>'}}
+async function r(){const session=await s();n(session);const p=(location.pathname.split('/').pop()||'').toLowerCase();if((p==='login.html'||p==='signup.html')&&session&&session.user){location.replace('mypage.html')}}
+document.addEventListener('DOMContentLoaded',r);window.addEventListener('pageshow',r);if(window.kanjiSupabase){kanjiSupabase.auth.onAuthStateChange(()=>r())}
+})();

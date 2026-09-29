@@ -2,8 +2,8 @@
  const msg=document.getElementById('msg'); if(!window.kanjiSupabase){msg.textContent='会員システムに接続できません。';msg.className='msg show err';return;}
  const {data:{user}}=await kanjiSupabase.auth.getUser(); if(!user){location.href='login.html';return;}
  document.getElementById('accountEmail').textContent=user.email||'';
- const {data:profile,error:profileError}=await kanjiSupabase.from('profiles').select('is_admin').eq('user_id',user.id).single();
- if(profile&&!profileError&&profile.is_admin){document.getElementById('adminLinkWrap').style.display='block';}
+ const {data:adminRows}=await kanjiSupabase.from('admin_users').select('user_id').eq('user_id',user.id);
+ if(adminRows?.length){document.getElementById('adminLinkWrap').style.display='block';}
  const {data:favs}=await kanjiSupabase.from('favorites').select('store_id,store_name,created_at').eq('user_id',user.id).order('created_at',{ascending:false});
  const list=document.getElementById('favoriteList'); list.innerHTML='';
  if(!favs?.length){list.innerHTML='<div class="fine">まだ気になる店舗はありません。</div>'}

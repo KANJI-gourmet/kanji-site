@@ -23,8 +23,8 @@
  const rows=profiles||[];
 
  document.getElementById('memberCount').textContent=String(rows.length);
- document.getElementById('confirmedCount').textContent='—';
  document.getElementById('favoriteCount').textContent=String((favorites||[]).length);
+ document.getElementById('latestMemberNo').textContent=rows.length?'No.'+rows[rows.length-1].kanjin_no:'-';
 
  const fmt=(v)=>v?new Intl.DateTimeFormat('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(new Date(v)):'-';
  const tbody=document.getElementById('memberRows');

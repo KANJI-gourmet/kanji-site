@@ -90,3 +90,107 @@
   .reason-card{min-height:auto;flex-direction:row;justify-content:flex-start;gap:10px;text-align:left}
   .reason-no{margin:0}
 }
+
+
+/* KANJI detail tabs / seat-atmosphere UI */
+.official-cta{
+  display:flex;align-items:center;justify-content:center;
+  width:100%;margin:-8px 0 18px;padding:13px 16px;
+  border-radius:10px;background:linear-gradient(90deg,#a97920,#c99a28);
+  color:#fff;font-size:13px;font-weight:800;letter-spacing:.02em
+}
+.detail-tabs{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  border-bottom:1px solid var(--line);margin:0 0 24px;
+  position:sticky;top:66px;z-index:10;background:rgba(255,255,255,.96);
+  backdrop-filter:blur(8px)
+}
+.detail-tab{
+  appearance:none;border:0;border-bottom:3px solid transparent;background:transparent;
+  padding:13px 4px 11px;color:#5c6270;font:inherit;font-size:12px;font-weight:700;
+  cursor:pointer;white-space:nowrap
+}
+.detail-tab.active{color:#8a641d;border-bottom-color:var(--gold)}
+.detail-panel{display:none}
+.detail-panel.active{display:block}
+.food-tag-grid{display:flex;flex-wrap:wrap;gap:8px}
+.food-tag-grid .tag{padding:8px 12px;background:#faf7f0;border-color:#e6dccb;font-size:12px}
+
+.atmo-photo-strip{
+  display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;
+  margin:0 0 22px;padding-bottom:4px;scrollbar-width:none
+}
+.atmo-photo-strip::-webkit-scrollbar{display:none}
+.atmo-photo-strip img{
+  width:100%;min-width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:14px;
+  scroll-snap-align:start;background:#eee
+}
+.atmo-section{padding:0 0 20px;margin:0 0 20px;border-bottom:1px solid var(--line)}
+.atmo-section:last-child{border-bottom:0}
+.atmo-title{
+  display:flex;align-items:center;gap:9px;margin:0 0 12px;
+  color:#0f2448;font-size:18px;line-height:1.35
+}
+.atmo-title-icon{
+  width:24px;min-width:24px;text-align:center;color:#0f2448;
+  font-size:18px;font-weight:900;letter-spacing:-4px
+}
+
+.brightness-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.brightness-card{
+  overflow:hidden;border:1px solid #ece8df;border-radius:11px;background:#faf9f6;
+  color:#172844;text-align:center;transition:.18s ease
+}
+.brightness-card img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;background:#eee}
+.brightness-card span{display:block;padding:7px 4px 8px;font-size:12px;font-weight:800}
+.brightness-card.selected{
+  border-color:#b88623;background:linear-gradient(180deg,#c99a28,#a97920);
+  color:#fff;box-shadow:0 0 0 2px rgba(201,154,40,.14)
+}
+.brightness-copy{
+  margin:10px 0 0;padding:10px 12px;border:1px solid #ebe6dc;border-radius:9px;
+  background:#fff;color:#3d4655;font-size:13px;line-height:1.6
+}
+.brightness-disclaimer{margin:7px 0 0;color:#8d9096;font-size:10px;line-height:1.5}
+
+.seat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.atmo-choice{
+  min-height:82px;border:1px solid #edf0f4;border-radius:10px;background:#f5f7fa;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;
+  color:#172844;font-size:11px;font-weight:700;text-align:center;line-height:1.35;
+  padding:8px 5px
+}
+.atmo-choice.selected{
+  border-color:#b88623;background:linear-gradient(180deg,#c99a28,#a97920);color:#fff
+}
+.atmo-seat-icon{font-size:24px;line-height:1;color:currentColor}
+
+.compact-atmo{padding-bottom:15px;margin-bottom:15px}
+.compact-atmo .atmo-title{margin-bottom:8px;font-size:17px}
+.compact-choice-grid{display:grid;gap:7px}
+.compact-choice-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.compact-choice-grid.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.compact-choice{
+  min-height:44px;padding:7px 4px;border-radius:9px;
+  flex-direction:row;gap:0;font-size:11px
+}
+.compact-choice.selected{
+  background:linear-gradient(180deg,#c99a28,#a97920);color:#fff;border-color:#b88623
+}
+
+@media(max-width:640px){
+  .detail-tabs{top:66px;margin-left:-2px;margin-right:-2px}
+  .detail-tab{font-size:11px;padding:12px 2px 10px}
+  .atmo-title{font-size:17px}
+  .seat-grid{gap:6px}
+  .atmo-choice{min-height:76px;padding:7px 3px;font-size:10.5px}
+  .compact-choice{min-height:40px}
+}
+@media(max-width:390px){
+  .brightness-grid{gap:6px}
+  .brightness-card span{font-size:11px}
+  .seat-grid{gap:5px}
+  .atmo-choice{font-size:10px}
+  .compact-choice-grid{gap:5px}
+  .compact-choice{font-size:10px;padding:6px 2px}
+}

@@ -1,1 +1,429 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>会員管理 | KANJI</title><link rel="stylesheet" href="style.css"></head><body><header class="header"><div class="wrap header-in"><a href="index.html" class="site-logo-link" aria-label="KANJIトップへ"><img alt="KANJI" class="site-logo" src="logo.png?v=3"></a><nav class="nav"><a class="pill" href="mypage.html">マイページ</a></nav></div></header><main class="wrap" style="padding:32px 0 56px"><span class="label">ADMIN</span><h1 style="margin:4px 0 8px">会員管理</h1><p class="muted" style="margin-top:0">KANJI会員の登録状況を確認できます。</p><div id="adminMsg" class="msg"></div><section class="grid" style="grid-template-columns:repeat(3,1fr);margin:22px 0"><div class="card"><div class="meta">会員数</div><div id="memberCount" style="font-size:30px;font-weight:800">-</div></div><div class="card"><div class="meta">お気に入り登録数</div><div id="favoriteCount" style="font-size:30px;font-weight:800">-</div></div><div class="card"><div class="meta">最新会員番号</div><div id="latestMemberNo" style="font-size:30px;font-weight:800">-</div></div></section><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:760px"><thead><tr><th style="text-align:left;padding:10px;border-bottom:1px solid var(--line)">No.</th><th style="text-align:left;padding:10px;border-bottom:1px solid var(--line)">メールアドレス</th><th style="text-align:left;padding:10px;border-bottom:1px solid var(--line)">登録日時</th><th style="text-align:left;padding:10px;border-bottom:1px solid var(--line)">状態</th><th style="text-align:right;padding:10px;border-bottom:1px solid var(--line)">お気に入り</th></tr></thead><tbody id="memberRows"></tbody></table></div></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="supabase-client.js"></script><script src="admin.js"></script></body></html>
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>KANJI｜管理画面</title>
+<style>
+:root {
+  --navy:#0c2347;
+  --gold:#b77d1d;
+  --gold2:#c99637;
+  --line:#e6e9ee;
+  --soft:#f6f7f9;
+  --text:#102345;
+  --muted:#6f7b8d;
+  --white:#fff;
+  --green:#2b7a5b;
+  --red:#a54b4b;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:#f3f4f6;color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{display:grid;grid-template-columns:236px 1fr;min-height:100vh}
+.sidebar{
+  background:#0b1f3d;color:#fff;padding:18px 14px 20px;position:sticky;top:0;height:100vh
+}
+.brand{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:8px 10px 7px;margin:0 0 14px;background:#fff;border:1px solid rgba(255,255,255,.96);
+  border-radius:20px;box-shadow:0 10px 22px rgba(5,18,38,.18)
+}
+.brand img{width:186px;max-width:100%;height:auto;display:block;filter:none;opacity:1}
+.brand span{display:none}
+.nav{margin-top:0;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.nav button{
+  width:100%;border:1px solid rgba(255,255,255,.14);border-radius:12px;background:rgba(255,255,255,.06);color:#edf3fb;
+  text-align:center;padding:12px 8px;font-size:11px;font-weight:700;line-height:1.35;min-height:50px
+}
+.nav button.active,.nav button:hover{background:#fff;color:var(--navy);border-color:#fff}
+.sidebar-note{position:absolute;left:18px;right:18px;bottom:18px;color:#aeb9c9;font-size:9px;line-height:1.6}
+.main{min-width:0}
+.topbar{
+  height:66px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;
+  justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:5
+}
+.topbar h1{margin:0;font-size:17px;letter-spacing:.02em}
+.admin-badge{display:flex;align-items:center;gap:9px;color:#526079;font-size:11px}
+.admin-dot{width:9px;height:9px;border-radius:50%;background:var(--gold)}
+
+.page{padding:24px 28px 40px;max-width:1280px;margin:auto}
+.toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:18px}
+.toolbar-left{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.filter-btn,.ghost-btn,.primary-btn{
+  min-height:38px;border-radius:8px;padding:0 14px;font-size:11px;font-weight:750
+}
+.filter-btn,.ghost-btn{background:#fff;border:1px solid #dce1e8;color:#213757}
+.primary-btn{background:var(--navy);border:1px solid var(--navy);color:#fff}
+.count{color:#7a8594;font-size:11px}
+
+.table-wrap{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th,td{padding:13px 14px;border-bottom:1px solid #edf0f3;text-align:left;font-size:11px;vertical-align:middle}
+th{background:#fafbfc;color:#697587;font-size:9px;letter-spacing:.05em}
+tbody tr:hover{background:#fbfcfe}
+.status{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:9px;font-weight:700}
+.status.published{background:#edf7f2;color:#287258}
+.status.draft{background:#f5f0e6;color:#8a6428}
+.status.hidden{background:#f0f1f3;color:#707886}
+.type-badge{font-size:9px;color:#7b6539}
+.action-link{border:0;background:transparent;color:#0c2347;font-size:10px;font-weight:750;padding:4px 0}
+
+.panel{display:none}
+.panel.active{display:block}
+
+.editor-head{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:18px
+}
+.editor-title h2{margin:0 0 5px;font-size:18px}
+.editor-title p{margin:0;color:#7a8594;font-size:10px}
+.editor-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+.form-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px}
+.form-main,.form-side{display:flex;flex-direction:column;gap:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px}
+.card h3{
+  margin:0 0 4px;font-size:13px;display:flex;align-items:center;gap:8px
+}
+.card h3:after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba(183,125,29,.45),transparent)}
+.help{margin:0 0 14px;color:#7b8594;font-size:9.5px;line-height:1.65}
+.fields-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fields-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.field:last-child{margin-bottom:0}
+label{font-size:9.5px;font-weight:750;color:#3c4c63}
+.req{color:#a54b4b;margin-left:3px}
+input,select,textarea{
+  width:100%;border:1px solid #dfe4ea;border-radius:8px;background:#fff;color:#1c3150;
+  padding:10px 11px;font-size:11px;outline:none
+}
+textarea{resize:vertical;min-height:90px;line-height:1.6}
+input:focus,select:focus,textarea:focus{border-color:#b98a3c;box-shadow:0 0 0 2px rgba(183,125,29,.08)}
+.char{text-align:right;color:#9aa2ad;font-size:8.5px;margin-top:-2px}
+
+.checkbox-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.check{
+  display:flex;align-items:center;gap:8px;border:1px solid #e0e4e9;border-radius:8px;padding:9px 10px;
+  background:#fff;font-size:10px;color:#40516a
+}
+.check input{width:auto;margin:0}
+
+.image-box{
+  border:1px dashed #cfd6df;border-radius:10px;background:#fafbfc;padding:16px;text-align:center
+}
+.image-box strong{display:block;font-size:10px;margin-bottom:4px}
+.image-box span{font-size:8.5px;color:#8b95a2}
+.image-preview{
+  aspect-ratio:4/3;background:linear-gradient(135deg,#e9ecef,#d9dee5);border-radius:9px;margin-bottom:10px;
+  display:grid;place-items:center;color:#8b94a1;font-size:9px
+}
+.image-preview.vertical{aspect-ratio:3/4}
+.thumb-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.thumb{aspect-ratio:1;background:#e7eaef;border-radius:6px}
+
+.reason-row{display:grid;grid-template-columns:26px 1fr;gap:9px;align-items:center;margin-bottom:8px}
+.reason-num{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:#f5efe3;color:#9b6d24;font-size:9px;font-weight:800}
+
+.inline-note{
+  padding:10px 11px;border-left:2px solid var(--gold);background:#faf7f0;
+  color:#6f6045;font-size:9px;line-height:1.6;border-radius:0 6px 6px 0
+}
+.publish-box{display:flex;flex-direction:column;gap:10px}
+.publish-row{display:flex;justify-content:space-between;align-items:center;font-size:10px}
+.publish-row strong{font-size:11px}
+.danger{color:var(--red)}
+
+.preview-card{border:1px solid #e2e6ec;border-radius:10px;padding:12px;background:#fbfcfd}
+.preview-card small{display:block;color:#9aa2ad;font-size:8px;margin-bottom:5px}
+.preview-card strong{font-size:12px}
+
+@media(max-width:960px){
+  .app{grid-template-columns:1fr}
+  .sidebar{height:auto;position:relative;display:block;padding:14px 14px 16px}
+  .brand{padding:7px 10px 6px;margin:0 0 12px;border-radius:18px;background:#fff;border:1px solid rgba(255,255,255,.96);box-shadow:0 8px 18px rgba(10,35,71,.10)}
+  .brand img{width:170px}
+  .brand span{display:none}
+  .nav{margin:0;grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible}
+  .nav button{white-space:normal;min-height:48px}
+  .sidebar-note{display:none}
+  .topbar{top:0}
+  .form-grid{grid-template-columns:1fr}
+}
+@media(max-width:680px){
+  .page{padding:18px 12px 30px}
+  .topbar{padding:0 14px}
+  .fields-2,.fields-3{grid-template-columns:1fr}
+  .toolbar,.editor-head{align-items:stretch;flex-direction:column}
+  .editor-actions{width:100%}
+  .editor-actions button{flex:1}
+  .table-wrap{overflow:auto}
+  table{min-width:760px}
+}
+</style>
+</head>
+<body>
+<div class="app" id="adminApp" style="display:none">
+<aside class="sidebar">
+<div class="brand">
+<img alt="KANJI" src="data:image/webp;base64,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"/>
+<span>ADMIN CONSOLE</span>
+</div>
+<nav class="nav">
+<button class="active" data-target="stores">店舗一覧</button>
+<button data-target="editor">店舗登録</button>
+<button data-target="media">画像管理</button>
+<button data-target="settings">マスタ管理</button>
+</nav>
+<div class="sidebar-note">KANJI 管理画面 V7<br/>ロゴ・導線調整</div>
+</aside>
+<div class="main">
+<header class="topbar">
+<h1 id="pageTitle">店舗一覧</h1>
+<div class="admin-badge"><span class="admin-dot"></span>管理者</div>
+</header>
+<main class="page">
+<section class="panel active" id="stores">
+<div class="toolbar">
+<div class="toolbar-left">
+<button class="filter-btn">すべて</button>
+<button class="filter-btn">公開中</button>
+<button class="filter-btn">下書き</button>
+<button class="filter-btn">非公開</button>
+<span class="count">5店舗</span>
+</div>
+<button class="primary-btn" id="newStore">＋ 新しい店舗を登録</button>
+</div>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>店舗名</th><th>エリア</th><th>掲載区分</th><th>ステータス</th><th>更新日</th><th></th>
+</tr>
+</thead>
+<tbody>
+<tr><td><strong>MOKU 新橋店</strong></td><td>新橋</td><td><span class="type-badge">KANJI訪問</span></td><td><span class="status published">公開中</span></td><td>2026/10/18</td><td><button class="action-link edit-btn">編集</button></td></tr>
+<tr><td><strong>オクユカシ</strong></td><td>新橋</td><td><span class="type-badge">KANJI訪問</span></td><td><span class="status draft">下書き</span></td><td>2026/10/16</td><td><button class="action-link edit-btn">編集</button></td></tr>
+<tr><td><strong>酒とやきとり とりごろ 新橋烏森口店</strong></td><td>新橋</td><td><span class="type-badge">KANJI訪問</span></td><td><span class="status published">公開中</span></td><td>2026/10/15</td><td><button class="action-link edit-btn">編集</button></td></tr>
+<tr><td><strong>SUSHI BAR 魚々 COZY 五反田店</strong></td><td>五反田</td><td><span class="type-badge">気になる一軒</span></td><td><span class="status draft">下書き</span></td><td>2026/10/14</td><td><button class="action-link edit-btn">編集</button></td></tr>
+<tr><td><strong>花林糖</strong></td><td>新橋</td><td><span class="type-badge">気になる一軒</span></td><td><span class="status hidden">非公開</span></td><td>2026/10/12</td><td><button class="action-link edit-btn">編集</button></td></tr>
+</tbody>
+</table>
+</div>
+</section>
+<section class="panel" id="editor">
+<div class="editor-head">
+<div class="editor-title">
+<h2>店舗情報を編集</h2>
+<p>保存しても公開されません。公開前にプレビューで確認できます。</p>
+</div>
+<div class="editor-actions">
+<button class="ghost-btn">下書き保存</button>
+<button class="ghost-btn">プレビュー</button>
+<button class="primary-btn">公開する</button>
+</div>
+</div>
+<div class="form-grid">
+<div class="form-main">
+<div class="card">
+<h3>基本情報</h3>
+<p class="help">一覧・詳細ページに表示される店舗の基本情報です。</p>
+<div class="field"><label>正式店舗名 <span class="req">*</span></label><input value="燻製 鉄板焼 クラフトビール MOKU新橋店"/></div>
+<div class="fields-2">
+<div class="field"><label>エリア <span class="req">*</span></label><select><option>新橋</option><option>五反田</option><option>渋谷</option><option>新宿</option></select></div>
+<div class="field"><label>掲載区分 <span class="req">*</span></label><select><option>KANJI訪問</option><option>気になる一軒</option></select></div>
+</div>
+<div class="fields-3">
+<div class="field"><label>最寄駅</label><input value="新橋駅"/></div>
+<div class="field"><label>徒歩（分）</label><input type="number" value="2"/></div>
+<div class="field"><label>予算目安</label><select><option>4,000〜5,000円</option><option>5,000〜6,000円</option></select></div>
+</div>
+<div class="field"><label>住所</label><input placeholder="東京都港区..."/></div>
+</div>
+<div class="card">
+<h3>検索・分類</h3>
+<p class="help">検索条件と店舗詳細の分類表示に利用します。</p>
+<div class="fields-2">
+<div class="field"><label>メイン料理ジャンル <span class="req">*</span></label><select><option>居酒屋</option><option>和食</option><option>焼き鳥・串焼き</option></select></div>
+<div class="field"><label>サブ料理ジャンル</label><input placeholder="最大2件" value="燻製, 鉄板焼き"/></div>
+</div>
+<div class="field"><label>利用シーン</label>
+<div class="checkbox-grid">
+<label class="check"><input checked="" type="checkbox"/>デート</label>
+<label class="check"><input checked="" type="checkbox"/>友人との食事</label>
+<label class="check"><input checked="" type="checkbox"/>グループ</label>
+<label class="check"><input type="checkbox"/>家族</label>
+</div>
+</div>
+</div>
+<div class="card">
+<h3>一覧ページ表示</h3>
+<p class="help">店舗一覧で使う画像と短いコメントです。詳細ページ表紙とは別画像を登録できます。</p>
+<div class="fields-2">
+<div class="image-box">
+<div class="image-preview">一覧用画像 4:3</div>
+<strong>一覧用画像</strong>
+<span>未登録時は表紙画像を自動使用</span>
+</div>
+<div class="field">
+<label>KANJIひとこと</label>
+<textarea>個室からカウンターまで、シーンに合わせて使いやすい一軒。</textarea>
+<div class="char">目安 20〜30文字</div>
+</div>
+</div>
+</div>
+<div class="card">
+<h3>詳細ページ表紙</h3>
+<p class="help">雑誌表紙風のヒーローエリアに使用します。</p>
+<div class="fields-2">
+<div class="image-box">
+<div class="image-preview vertical">表紙用画像 3:4</div>
+<strong>表紙用画像</strong>
+<span>外観または内観の代表写真</span>
+</div>
+<div>
+<div class="field"><label>表示用短縮店名</label><input value="MOKU 新橋"/></div>
+<div class="field"><label>キャッチコピー</label><textarea>燻製と鉄板焼きを、落ち着いた空間で。</textarea><div class="char">目安18〜20文字／最大22文字</div></div>
+<div class="fields-2">
+<div class="field"><label>文字方向</label><select><option>横書き</option><option>縦書き</option></select></div>
+<div class="field"><label>表示位置</label><select><option>左下</option><option>左上</option><option>右上</option><option>左中央</option><option>右中央</option><option>右下</option></select></div>
+</div>
+</div>
+</div>
+</div>
+<div class="card">
+<h3>このお店を選ぶ理由</h3>
+<p class="help">最大3件。事実・利用シーンに基づく短い理由を登録します。</p>
+<div class="reason-row"><span class="reason-num">1</span><input value="新橋駅から徒歩2分"/></div>
+<div class="reason-row"><span class="reason-num">2</span><input value="個室・半個室あり"/></div>
+<div class="reason-row"><span class="reason-num">3</span><input value="席タイプを選びやすい"/></div>
+</div>
+<div class="card">
+<h3>KANJIコメント</h3>
+<p class="help">どんな店か・向いているシーン・雰囲気・料理などを簡潔に。未訪問店では体験したような表現はしません。</p>
+<div class="field"><textarea>落ち着きすぎず、にぎやかすぎない店内。個室・半個室・カウンター・テーブル席があり、シーンに合わせて選びやすい一軒です。</textarea><div class="char">目安100〜150文字</div></div>
+</div>
+<div class="card">
+<h3>席・雰囲気</h3>
+<p class="help">行く前のイメージとの差を減らすための情報です。</p>
+<div class="field"><label>内観写真</label>
+<div class="image-box">
+<div class="image-preview">メイン内観写真</div>
+<div class="thumb-row"><div class="thumb"></div><div class="thumb"></div><div class="thumb"></div><div class="thumb"></div></div>
+</div>
+</div>
+<div class="fields-3">
+<div class="field"><label>明るさ</label><select><option>ほどよい</option><option>明るい</option><option>暗め</option></select></div>
+<div class="field"><label>にぎやかさ</label><select><option>ほどよい</option><option>落ち着き</option><option>にぎやか</option></select></div>
+<div class="field"><label>喫煙環境</label><select><option>禁煙</option><option>電子タバコのみ</option><option>喫煙可</option><option>分煙</option></select></div>
+</div>
+<div class="field"><label>席タイプ</label>
+<div class="checkbox-grid">
+<label class="check"><input checked="" type="checkbox"/>個室</label>
+<label class="check"><input checked="" type="checkbox"/>半個室</label>
+<label class="check"><input checked="" type="checkbox"/>テーブル</label>
+<label class="check"><input checked="" type="checkbox"/>カウンター</label>
+</div>
+</div>
+</div>
+<div class="card">
+<h3>お酒のこだわり</h3>
+<p class="help">通常の取扱いではなく、品揃え・種類・専門性など、店舗の特徴として確認できる場合のみ選択します。</p>
+<div class="checkbox-grid">
+<label class="check"><input checked="" type="checkbox"/>日本酒</label>
+<label class="check"><input checked="" type="checkbox"/>ワイン</label>
+<label class="check"><input type="checkbox"/>焼酎</label>
+<label class="check"><input type="checkbox"/>ウイスキー</label>
+<label class="check"><input checked="" type="checkbox"/>クラフトビール</label>
+</div>
+<div class="inline-note" style="margin-top:10px">0件の場合は、店舗詳細ページの「お酒のこだわり」セクション自体を表示しません。</div>
+</div>
+<div class="card">
+<h3>公式情報・確認情報</h3>
+<p class="help">公開ページでは「公式情報を見る」の導線を1つだけ表示。確認元・訪問日は管理用です。</p>
+<div class="field"><label>公式URL</label><input placeholder="https://..."/></div>
+<div class="fields-2">
+<div class="field"><label>Instagram URL</label><input placeholder="https://..."/></div>
+<div class="field"><label>予約URL</label><input placeholder="https://..."/></div>
+</div>
+<div class="field"><label>確認元URL（非公開）</label><input placeholder="https://..."/></div>
+<div class="fields-2">
+<div class="field"><label>実訪問日（非公開）</label><input type="date"/></div>
+<div class="field"><label>情報確認日（非公開）</label><input type="date"/></div>
+</div>
+</div>
+</div>
+<aside class="form-side">
+<div class="card">
+<h3>公開設定</h3>
+<div class="publish-box">
+<div class="publish-row"><span>現在の状態</span><strong>下書き</strong></div>
+<div class="field"><label>ステータス</label><select><option>下書き</option><option>公開</option><option>非公開</option></select></div>
+<button class="ghost-btn">プレビューを開く</button>
+<button class="primary-btn">公開する</button>
+</div>
+</div>
+<div class="card">
+<h3>表示確認</h3>
+<div class="preview-card"><small>一覧表示</small><strong>MOKU 新橋店</strong><p style="font-size:9px;color:#6f7b8d;line-height:1.5">新橋駅 徒歩2分<br/>4,000〜5,000円</p></div>
+</div>
+<div class="card">
+<h3>運用メモ</h3>
+<div class="field"><textarea placeholder="公開しない内部メモ"></textarea></div>
+</div>
+<div class="card">
+<h3>注意</h3>
+<p class="help danger">保存と公開は別操作です。入力途中で公開されることはありません。</p>
+</div>
+</aside>
+</div>
+</section>
+<section class="panel" id="media">
+<div class="card"><h3>画像管理</h3><p class="help">一覧用画像・詳細表紙・内観写真を店舗ごとに管理する画面を想定しています。</p></div>
+</section>
+<section class="panel" id="settings">
+<div class="card"><h3>マスタ管理</h3><p class="help">エリア、料理ジャンル、利用シーンなどの選択肢を管理する画面を想定しています。</p></div>
+</section>
+</main>
+</div>
+</div>
+<script>
+const navButtons=[...document.querySelectorAll('.nav button')];
+const panels=[...document.querySelectorAll('.panel')];
+const titles={stores:'店舗一覧',editor:'店舗編集',media:'画像管理',settings:'マスタ設定'};
+
+function openPanel(id){
+  panels.forEach(p=>p.classList.toggle('active',p.id===id));
+  navButtons.forEach(b=>b.classList.toggle('active',b.dataset.target===id));
+  document.getElementById('pageTitle').textContent=titles[id]||'KANJI 管理';
+}
+navButtons.forEach(b=>b.addEventListener('click',()=>openPanel(b.dataset.target)));
+document.getElementById('newStore').addEventListener('click',()=>openPanel('editor'));
+document.querySelectorAll('.edit-btn').forEach(b=>b.addEventListener('click',()=>openPanel('editor')));
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="supabase-client.js"></script><script>
+(async function(){
+  const app=document.getElementById('adminApp');
+  try{
+    if(!window.kanjiSupabase){document.body.innerHTML='<p style="padding:32px;font-family:sans-serif">管理画面に接続できません。</p>';return;}
+    const {data:{user}}=await kanjiSupabase.auth.getUser();
+    if(!user){location.replace('login.html');return;}
+    const {data,error}=await kanjiSupabase.from('admin_users').select('user_id').eq('user_id',user.id);
+    if(error||!data?.length){document.body.innerHTML='<p style="padding:32px;font-family:sans-serif">この管理画面を表示する権限がありません。</p>';return;}
+    app.style.display='grid';
+  }catch(e){document.body.innerHTML='<p style="padding:32px;font-family:sans-serif">管理画面に接続できません。</p>'}
+})();
+</script><script>
+document.addEventListener('click',e=>{
+ const t=e.target.closest('button');if(!t)return;
+ if(['下書き保存','公開する','プレビュー','プレビューを開く'].includes(t.textContent.trim())){
+  if(t.textContent.includes('プレビュー')) return;
+  e.preventDefault();alert('店舗データベースとの保存・公開連携は次の実装工程で接続します。現在は管理画面デザインの本番反映まで完了しています。');
+ }
+});
+</script></body>
+</html>

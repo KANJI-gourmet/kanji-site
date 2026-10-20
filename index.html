@@ -287,7 +287,7 @@ body{padding:0!important;background:#f2f2f1!important}
 .screen{min-height:100vh!important;border-radius:0!important;overflow:hidden!important;background:#fff!important}
 @media(max-width:520px){.device{width:100%!important}.screen{border-radius:0!important}}
 </style>
-</head>
+<link rel="stylesheet" href="kanji-update.css?v=1"></head>
 <body>
 
 <div class="device">
@@ -324,18 +324,11 @@ body{padding:0!important;background:#f2f2f1!important}
 <div class="section-heading"><div><span class="eyebrow">SEARCH</span><h2>条件から探す</h2></div><span class="heading-line"></span></div>
 <div class="search-card">
 <p class="search-lead">3つの条件から、使いたいシーンに合うお店を。</p>
-<div class="search-fields">
-<select class="search-select" id="area"><option value="">エリア</option><option value="新橋">新橋</option><option value="五反田">五反田</option><option value="渋谷">渋谷</option><option value="新宿">新宿</option></select>
-<select class="search-select" id="genre"><option value="">料理ジャンル</option><option value="居酒屋">居酒屋</option><option value="焼き鳥・串焼き">焼き鳥・串焼き</option><option value="寿司・海鮮">寿司・海鮮</option><option value="燻製">燻製</option></select>
-<select class="search-select" id="scene"><option value="">利用シーン</option><option value="デート">デート</option><option value="友人との食事">友人との食事</option><option value="グループ">グループ</option></select>
-</div>
-<button class="search-btn" id="topSearchButton" type="button">
-            この条件で検索
-            <svg viewbox="0 0 24 24"><circle cx="11" cy="11" r="6"></circle><path d="M16 16l4 4"></path></svg>
-</button>
-<a class="detail-search-link" href="stores.html">さらに条件を追加して探す →</a>
-</div>
-</section>
+<div class="search-fields"><select class="search-select" id="area"><option value="">エリア</option></select><select class="search-select" id="genre"><option value="">料理ジャンル</option></select><select class="search-select" id="scene"><option value="">利用シーン</option></select></div>
+<button class="advanced-toggle" id="advancedToggle" type="button" aria-expanded="false">さらに条件を追加して探す <span>＋</span></button>
+<div class="advanced-panel" id="advancedPanel" hidden><div class="advanced-group"><span class="advanced-label">料理ジャンルを追加</span><div class="chip-grid" id="advancedGenres"></div></div><div class="advanced-group"><span class="advanced-label">席タイプ</span><div class="chip-grid" id="advancedSeats"><label class="check-chip"><input type="checkbox" value="個室">個室</label><label class="check-chip"><input type="checkbox" value="半個室">半個室</label><label class="check-chip"><input type="checkbox" value="カウンター">カウンター</label></div></div><div class="advanced-group"><span class="advanced-label">喫煙環境</span><select class="search-select advanced-select" id="smoking"><option value="">指定なし</option></select></div></div>
+<button class="search-btn" id="topSearchButton" type="button">この条件で検索<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"></circle><path d="M16 16l4 4"></path></svg></button>
+</div></section>
 <section class="section">
 <div class="section-heading"><div><span class="eyebrow">AREA</span><h2>エリアから探す</h2></div><span class="heading-line"></span></div>
 <div class="area-grid">
@@ -398,15 +391,5 @@ body{padding:0!important;background:#f2f2f1!important}
 </main>
 </div>
 </div>
-<script>
-(function(){
- const b=document.getElementById('topSearchButton');
- if(!b)return;
- b.addEventListener('click',()=>{
-  const q=new URLSearchParams();
-  ['area','genre','scene'].forEach(id=>{const v=document.getElementById(id)?.value;if(v)q.set(id,v)});
-  location.href='stores.html'+(q.toString()?'?'+q.toString():'');
- });
-})();
-</script></body>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="supabase-client.js"></script><script src="top-search.js?v=1"></script></body>
 </html>

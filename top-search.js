@@ -1,0 +1,10 @@
+(function(){
+const F={area:['新橋','五反田','渋谷','新宿','池袋','川崎','横浜'],genre:['居酒屋','焼き鳥・串焼き','串揚げ','焼肉・ホルモン','和食','寿司・海鮮','中華','イタリアン','フレンチ・ビストロ','韓国料理','鍋・しゃぶしゃぶ','鉄板焼き','燻製','バル・ダイニング','洋食','エスニック','カフェ','バー','その他'],scene:['デート','友人との食事','飲み会','グループ','家族','女子会','会食','歓送迎会','誕生日・記念日','二軒目','イベント'],smoking:['禁煙','電子タバコのみ','喫煙可','分煙']};
+const e=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const fill=(id,l,a)=>{const x=document.getElementById(id);if(x)x.innerHTML='<option value="">'+l+'</option>'+a.map(v=>'<option value="'+e(v)+'">'+e(v)+'</option>').join('')};
+function render(d){const by=c=>d.filter(x=>x.category===c).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).map(x=>x.value),get=c=>by(c).length?by(c):F[c];fill('area','エリア',get('area'));fill('genre','料理ジャンル',get('genre'));fill('scene','利用シーン',get('scene'));fill('smoking','指定なし',get('smoking'));document.getElementById('advancedGenres').innerHTML=get('genre').map(v=>'<label class="check-chip"><input type="checkbox" value="'+e(v)+'">'+e(v)+'</label>').join('')}
+render(Object.entries(F).flatMap(([category,a])=>a.map((value,i)=>({category,value,sort_order:i}))));
+(async()=>{try{if(!window.kanjiSupabase)return;const{data}=await kanjiSupabase.from('store_masters').select('category,value,sort_order').eq('is_active',true);if(data?.length)render(data)}catch(_){}})();
+const t=document.getElementById('advancedToggle'),p=document.getElementById('advancedPanel');t?.addEventListener('click',()=>{const o=t.getAttribute('aria-expanded')==='true';t.setAttribute('aria-expanded',String(!o));p.hidden=o});
+document.getElementById('topSearchButton')?.addEventListener('click',()=>{const q=new URLSearchParams();['area','genre','scene','smoking'].forEach(id=>{const v=document.getElementById(id)?.value;if(v)q.set(id,v)});const g=[...document.querySelectorAll('#advancedGenres input:checked')].map(x=>x.value),s=[...document.querySelectorAll('#advancedSeats input:checked')].map(x=>x.value);if(g.length)q.set('genres',g.join('|'));if(s.length)q.set('seats',s.join('|'));location.href='stores.html'+(q.toString()?'?'+q:'')});
+})();

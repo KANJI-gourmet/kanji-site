@@ -1,0 +1,11 @@
+/* KANJI 2026-10-20 production fixes */
+.search-select{min-height:54px!important;padding:0 15px!important;font-size:13.5px!important;border-radius:11px!important}
+.advanced-toggle{width:100%;margin:9px 0 0;padding:12px 5px;border:0;background:transparent;color:#8a6d36;font-size:10.5px;font-weight:750;display:flex;justify-content:center;gap:7px;align-items:center;cursor:pointer}
+.advanced-toggle span{font-size:16px;line-height:1;transition:.2s}.advanced-toggle[aria-expanded="true"] span{transform:rotate(45deg)}
+.advanced-panel{margin-top:6px;padding:14px 12px;background:#f8f6f1;border:1px solid #ebe5d9;border-radius:11px}.advanced-panel[hidden]{display:none}
+.advanced-group+.advanced-group,.filter-group+.filter-group{margin-top:14px}.advanced-label,.filter-label{display:block;margin-bottom:8px;color:#526079;font-size:9.5px;font-weight:750}
+.chip-grid,.filter-chips{display:flex;flex-wrap:wrap;gap:7px}.check-chip,.filter-chip{position:relative;display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 11px;border:1px solid #dfe4eb;border-radius:999px;background:#fff;color:#173154;font-size:10px;font-weight:700;cursor:pointer}
+.check-chip input,.filter-chip input{position:absolute;opacity:0;pointer-events:none}.check-chip:has(input:checked),.filter-chip:has(input:checked){background:#0c2347;color:#fff;border-color:#0c2347}
+.advanced-select{background:#fff!important}.search-btn,.search-submit{margin-top:12px!important;min-height:49px!important;font-size:12px!important}
+.filter-btn{margin-top:10px!important;min-height:44px!important;font-size:11px!important}.filter-btn[aria-expanded="true"] svg{transform:rotate(45deg)}.filter-btn svg{transition:.2s}.filter-panel{padding:14px 12px!important;background:#f8f6f1!important;border-radius:11px!important}
+.bright{pointer-events:none!important;cursor:default!important}.bright:disabled{opacity:1!important}.atmosphere-photo-label.demo{background:rgba(12,35,71,.76)!important}

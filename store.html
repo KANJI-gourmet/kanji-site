@@ -2828,6 +2828,59 @@ body{padding:0!important;background:#f2f2f1!important}
 .atmosphere-hero-media img{object-fit:cover!important;object-position:center center!important}
 @media(max-width:520px){.story-cover-media{min-height:420px!important}}
 </style>
+
+<style id="kanji-selection-clarity">
+/* 選択式項目：未選択は控えめ、選択中は明確に強調 */
+.bright,.seat,.compact{position:relative;transition:opacity .18s ease,background .18s ease,border-color .18s ease,box-shadow .18s ease}
+.bright:not(.selected){
+  border-color:#e1e4e8!important;
+  background:#f1f2f4!important;
+  color:#9299a3!important;
+  opacity:.62;
+  box-shadow:none!important
+}
+.bright:not(.selected) img{filter:grayscale(1);opacity:.52}
+.bright:not(.selected) span{background:#f1f2f4!important;color:#9299a3!important;font-weight:650}
+.seat:not(.selected),.compact:not(.selected){
+  border-color:#e1e4e8!important;
+  background:#f1f2f4!important;
+  color:#9299a3!important;
+  opacity:.62;
+  box-shadow:none!important
+}
+.seat:not(.selected) img,.compact:not(.selected) img{filter:grayscale(1);opacity:.48}
+.bright.selected,.seat.selected,.compact.selected{
+  opacity:1!important;
+  border-color:#b77d1d!important;
+  box-shadow:0 0 0 2px rgba(183,125,29,.16),0 4px 12px rgba(12,35,71,.08)!important
+}
+.bright.selected::after,.seat.selected::after,.compact.selected::after{
+  content:"✓";
+  position:absolute;
+  top:6px;
+  right:6px;
+  width:17px;
+  height:17px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  background:#fff;
+  color:#a86e16;
+  font-size:10px;
+  line-height:1;
+  font-weight:900;
+  box-shadow:0 1px 5px rgba(12,35,71,.16);
+  z-index:2
+}
+.bright.selected img{filter:none!important;opacity:1!important}
+.alcohol-icons .alcohol-item{opacity:1}
+.alcohol-icons .alcohol-img-wrap{
+  border-color:#dbc38f;
+  background:linear-gradient(180deg,#fff,#fbf8f1);
+  box-shadow:0 4px 12px rgba(12,35,71,.05)
+}
+.alcohol-icons .alcohol-img-wrap img{width:88%;height:88%;object-fit:contain}
+</style>
 </head>
 <body>
 <div class="device">
